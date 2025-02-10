@@ -1,43 +1,27 @@
-// XPLOADER BOT by Tylor
-
-const axios = require('axios');
 const yts = require('yt-search');
 
 module.exports = {
   command: ['video'],
-  operate: async ({ Xploader, m, reply, text }) => {
-    if (!text) return reply("Please provide a song/video name.");
+  operate: async ({ Cypher, m, reply, text, fetchVideoDownloadUrl }) => {
+    if (!text) return reply('*Please provide a song name!*');
 
     try {
-      // Search for the video
-      let searchResults = await yts(text);
-      let result = searchResults.all[0];
-      let videoUrl = `https://api.siputzx.my.id/api/d/ytmp4?url=${encodeURIComponent(result.url)}`;
+      const search = await yts(text);
+      if (!search || search.all.length === 0) return reply('*The song you are looking for was not found.*');
 
-      // Fetch the direct download link
-      let response = await axios.get(videoUrl);
-      if (response.status !== 200 || !response.data.status) throw new Error('Failed to retrieve video link');
+      const video = search.all[0]; 
+      const videoData = await fetchVideoDownloadUrl(video.url);
 
-      let videoInfo = response.data.data;
-
-      // Send video information
-      let videoMessage = {
-        text: `*Title*: ${videoInfo.title}\n*Channel*: ${result.author.name}\n*Views*: ${result.views}\n*Duration*: ${result.timestamp}\n\n*Xploader is downloading video...*`,
-        contextInfo: { mentionedJid: [m.sender] }
-      };
-      Xploader.sendMessage(m.chat, videoMessage, { quoted: m });
-
-      // Send the video
-      await Xploader.sendMessage(m.chat, { 
-        video: { url: videoInfo.dl }, 
-        mimetype: 'video/mp4', 
-        fileName: `${videoInfo.title}.mp4`,
-        caption: `᙭ᑭᒪOᗩᗪᗴᖇ ᗷOT`
+      await Cypher.sendMessage(m.chat, {
+        video: { url: videoData.download_url },
+        mimetype: 'video/mp4',
+        fileName: `${videoData.title}.mp4`,
+        caption: videoData.title
       }, { quoted: m });
 
     } catch (error) {
-      console.error(error);
-      reply("An error occurred while fetching the video.");
+      console.error('video command failed:', error);
+      reply(`Error: ${error.message}`);
     }
   }
 };

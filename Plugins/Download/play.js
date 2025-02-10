@@ -1,51 +1,26 @@
-// XPLOADER BOT by Tylor
-
-const { y2save } = require('../../lib/y2save.js');
 const yts = require('yt-search');
 
 module.exports = {
-  command: ['play', 'song'],
-  operate: async ({ Xploader, m, reply, text, botname }) => {
+  command: ['play'],
+  operate: async ({ Cypher, m, reply, text, fetchMp3DownloadUrl }) => {
     if (!text) return reply('*Please provide a song name!*');
 
-    const query = text;
-
-    const fetchDownloadUrl = async (videoUrl) => {
-      try {
-        return await y2save.main(videoUrl, 'mp3', '128kbps');
-      } catch (error) {
-        console.error('Error with y2save:', error.message);
-        throw error;
-      }
-    };
-
     try {
-      const search = await yts(query);
+      const search = await yts(text);
       if (!search || search.all.length === 0) return reply('*The song you are looking for was not found.*');
 
       const video = search.all[0];
-      const downloadUrl = await fetchDownloadUrl(video.url);
-      console.log('Final download URL:', downloadUrl);
+      const downloadUrl = await fetchMp3DownloadUrl(video.url);
 
-      await Xploader.sendMessage(m.chat, {
+      await Cypher.sendMessage(m.chat, {
         audio: { url: downloadUrl },
         mimetype: 'audio/mpeg',
-        fileName: `${video.title}.mp3`,
-        contextInfo: {
-          externalAdReply: {
-            title: botname,
-            body: `${video.title}`,
-            thumbnailUrl: `${video.thumbnail}`,
-            sourceUrl: `${video.url}`,
-            mediaType: 2,
-            mediaUrl: `${video.thumbnail}`
-          }
-        }
+        fileName: `${video.title}.mp3`
       }, { quoted: m });
 
     } catch (error) {
-      console.error('Error:', error);
-      Xploader.sendMessage(m.chat, { text: 'An error occurred while trying to download the audio.' }, { quoted: m });
+      console.error('play command failed:', error);
+      reply(`Error: ${error.message}`);
     }
   }
 };

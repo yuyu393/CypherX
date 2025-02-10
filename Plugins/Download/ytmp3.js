@@ -1,13 +1,20 @@
-// XPLOADER BOT by Tylor
-
 module.exports = {
   command: ['ytmp3'],
-  operate: async ({ m, text, downloadXMp3, reply }) => {
+  operate: async ({ Cypher, m, reply, text, fetchMp3DownloadUrl }) => {
+    if (!text) return reply('*Please provide a valid YouTube link!*');
+
     try {
-      if (!text) return reply('*Please provide a valid YouTube link!*');
-      const url = text.trim(); // Use the provided text directly as the URL
-      console.log('YouTube URL:', url);
-      await downloadXMp3(url);
+      const urlMatch = text.match(/(?:https?:\/\/)?(?:youtu\.be\/|(?:www\.|m\.)?youtube\.com\/(?:watch\?v=|v\/|embed\/|shorts\/|playlist\?list=)?)([a-zA-Z0-9_-]{11})/gi);
+      if (!urlMatch) return reply('*Seems like your message does not contain a valid YouTube link*');
+
+      const link = urlMatch[0];
+      const downloadUrl = await fetchMp3DownloadUrl(link);
+
+      await Cypher.sendMessage(m.chat, {
+        audio: { url: downloadUrl },
+        mimetype: 'audio/mpeg'
+      }, { quoted: m });
+
     } catch (error) {
       console.error('ytmp3 command failed:', error);
       reply(`Error: ${error.message}`);
