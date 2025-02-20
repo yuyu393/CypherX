@@ -50,12 +50,15 @@ global.author = process.env.STICKER_AUTHOR_NAME || "X"
 //The sticker author name
 
 //=================================================//
-global.prefixz = process.env.PREFIX || '.'
+global.prefixz = process.env.BOT_PREFIX || '.'
 //Set your desired prefix
 
 //=================================================//
 global.mode = process.env.MODE || 'public';
-// Set to 'private' to enable private mode, otherwise default is 'public'
+// Set 'private' to enable private mode
+// Set 'public' to enable public mode
+// Set 'group' to enable only group
+// Set 'pm' to enable only private chats
 
 //=================================================//
 global.statusemoji = process.env.STATUS_EMOJI || '🧡'
@@ -83,7 +86,14 @@ global.antidelete = process.env.ANTIDELETE || 'private'
 // options:- 'private', 'chat' or 'off'
 // private = Sends to message yourself 
 // chat = sends to the current chat 
-// off = Disables
+// off = Disables detection of deleted messages
+
+//=================================================//
+global.antiedit = process.env.ANTI_EDIT || 'private'
+// options:- 'private', 'chat' or 'off'
+// private = Sends to message yourself 
+// chat = sends to the current chat 
+// off = Disables detection of edited messages
 
 //=================================================//
 global.anticall = process.env.ANTI_CALL || 'false'
