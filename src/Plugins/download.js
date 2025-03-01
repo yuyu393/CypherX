@@ -435,36 +435,6 @@ module.exports = [
   }
 },
  {
-  command: ['telesticker', 'telegramsticker'],
-  operate: async ({ m, args, Cypher, prefix, command, reply, Telesticker }) => {
-    if (args[0] && args[0].match(/(https:\/\/t.me\/addstickers\/)/gi)) {
-      try {
-        let XpBotresources = await Telesticker(args[0]);
-        await reply(`*Sending ${XpBotresources.length} stickers...*`);
-        
-        if (m.isGroup && XpBotresources.length > 30) {
-          await reply("*Number of stickers more than 30, bot will send it in private chat.*");
-          for (let i = 0; i < XpBotresources.length; i++) {
-            Cypher.sendMessage(m.sender, {
-              sticker: { url: XpBotresources[i].url },
-            });
-          }
-        } else {
-          for (let i = 0; i < XpBotresources.length; i++) {
-            Cypher.sendMessage(m.chat, {
-              sticker: { url: XpBotresources[i].url },
-            });
-          }
-        }
-      } catch (error) {
-        reply(`Error fetching stickers: ${error.message}`);
-      }
-    } else {
-      reply(`*Telegram sticker link?*\nExample: ${prefix + command} https://t.me/addstickers/FriendlyDeath`);
-    }
-  }
-},
- {
   command: ['tiktok', 'tikdl', 'tiktokvideo'],
   operate: async ({ m, args, fetchJson, Cypher, reply }) => {
     if (!args[0]) return reply('*Please provide a TikTok video url!*');
@@ -522,14 +492,39 @@ module.exports = [
       const videoData = await fetchVideoDownloadUrl(video.url);
 
       await Cypher.sendMessage(m.chat, {
-        video: { url: videoData.download_url },
+        video: { url: videoData.data.dl }, 
         mimetype: 'video/mp4',
-        fileName: `${videoData.title}.mp4`,
-        caption: videoData.title
+        fileName: `${videoData.data.title}.mp4`,
+        caption: videoData.data.title
       }, { quoted: m });
 
     } catch (error) {
       console.error('video command failed:', error);
+      reply(`Error: ${error.message}`);
+    }
+  }
+},
+{
+  command: ['videodoc'],
+  operate: async ({ Cypher, m, reply, text, fetchVideoDownloadUrl }) => {
+    if (!text) return reply('*Please provide a song name!*');
+
+    try {
+      const search = await yts(text);
+      if (!search || search.all.length === 0) return reply('*The song you are looking for was not found.*');
+
+      const video = search.all[0]; 
+      const videoData = await fetchVideoDownloadUrl(video.url);
+
+      await Cypher.sendMessage(m.chat, {
+        document: { url: videoData.data.dl },
+        mimetype: 'video/mp4',
+        fileName: `${videoData.data.title}.mp4`,
+        caption: videoData.data.title
+      }, { quoted: m });
+
+    } catch (error) {
+      console.error('videodoc command failed:', error);
       reply(`Error: ${error.message}`);
     }
   }
@@ -547,10 +542,10 @@ module.exports = [
       const videoData = await fetchVideoDownloadUrl(video.url);
 
       await Cypher.sendMessage(m.chat, {
-        document: { url: videoData.download_url },
+        document: { url: videoData.data.dl },
         mimetype: 'video/mp4',
-        fileName: `${videoData.title}.mp4`,
-        caption: videoData.title
+        fileName: `${videoData.data.title}.mp4`,
+        caption: videoData.data.title
       }, { quoted: m });
 
     } catch (error) {
@@ -630,11 +625,14 @@ await Cypher.sendMessage(m.chat, {
 
       const link = urlMatch[0];
       const downloadUrl = await fetchMp3DownloadUrl(link);
+     const search = await yts(link);
+     const name = search.all[0]; 
 
       await Cypher.sendMessage(m.chat, {
         document: { url: downloadUrl },
         mimetype: 'audio/mpeg',
-        fileName: `${link}.mp3`
+        fileName: `${name.title}.mp3`,
+        caption: `${name.title}.mp3`
       }, { quoted: m });
 
     } catch (error) {
@@ -656,10 +654,10 @@ await Cypher.sendMessage(m.chat, {
       const videoData = await fetchVideoDownloadUrl(link);
 
       await Cypher.sendMessage(m.chat, {
-        video: { url: videoData.download_url },
+        video: { url: videoData.data.dl },
         mimetype: 'video/mp4',
-        fileName: `${videoData.title}.mp4`,
-        caption: videoData.title
+        fileName: `${videoData.data.title}.mp4`,
+        caption: videoData.data.title
       }, { quoted: m });
 
     } catch (error) {
@@ -681,10 +679,10 @@ await Cypher.sendMessage(m.chat, {
       const videoData = await fetchVideoDownloadUrl(link);
 
       await Cypher.sendMessage(m.chat, {
-        document: { url: videoData.download_url },
+        document: { url: videoData.data.dl },
         mimetype: 'video/mp4',
-        fileName: `${videoData.title}.mp4`,
-        caption: videoData.title
+        fileName: `${videoData.data.title}.mp4`,
+        caption: videoData.data.title
       }, { quoted: m });
 
     } catch (error) {
