@@ -25,12 +25,10 @@ class PluginManager {
           const matchedPlugin = plugins.find(plugin => plugin.command.includes(command));
 
           if (matchedPlugin) {
-            console.log(`[CYPHER-X] Loading plugin: ${filePath}`);
 
             await matchedPlugin.operate(globalContext);
 
             delete require.cache[require.resolve(filePath)];
-            console.log(`[CYPHER-X] Plugin unloaded: ${filePath}`);
 
             return true;
           }
