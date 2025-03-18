@@ -3,7 +3,7 @@ const {
     getContentType
 } = require('@whiskeysockets/baileys')
 
-exports.heart = (Cypher, m, store) => {
+const heart = (Cypher, m, store) => {
     if (!m) return m
     let M = proto.WebMessageInfo
     if (m.key) {
@@ -71,7 +71,7 @@ if (m.quoted) {
             m.getQuotedObj = m.getQuotedMessage = async () => {
                 if (!m.quoted.id) return false;
                 let q = await store.loadMessage(m.chat, m.quoted.id, Cypher);
-                return exports.heart(Cypher, q, store);
+                return heart(Cypher, q, store);
             };
 
             let vM = m.quoted.fakeObj = M.fromObject({
@@ -116,7 +116,7 @@ m.text = m.msg ? (m.msg.text || m.msg.caption || m.message.conversation || m.msg
     /**
      * Copy this message
      */
-    m.copy = () => exports.heart(Cypher, M.fromObject(M.toObject(m)))
+    m.copy = () => heart(Cypher, M.fromObject(M.toObject(m)))
 
     /**
      * 
@@ -129,3 +129,5 @@ m.text = m.msg ? (m.msg.text || m.msg.caption || m.message.conversation || m.msg
 
     return m
 }
+
+module.exports = { heart }
